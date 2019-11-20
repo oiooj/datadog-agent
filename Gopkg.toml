@@ -210,3 +210,7 @@
   name = "github.com/ianlancetaylor/cgosymbolizer"
   source = "github.com/ianlancetaylor/cgosymbolizer"
   revision = "f5072df9c550dc687157e5d7efb50825cdf8f0eb"
+
+[[constraint]]
+  name = "github.com/twmb/murmur3"
+  version = "1.0.0"
