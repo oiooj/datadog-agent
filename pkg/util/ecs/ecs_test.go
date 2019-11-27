@@ -29,11 +29,11 @@ func TestLocateECSHTTP(t *testing.T) {
 	assert := assert.New(t)
 	ecsinterface, err := testutil.NewDummyECS()
 	require.Nil(t, err)
-	ts, ecs_agent_port, err := ecsinterface.Start()
+	ts, ecsAgentPort, err := ecsinterface.Start()
 	defer ts.Close()
 	require.Nil(t, err)
 
-	config.Datadog.SetDefault("ecs_agent_url", fmt.Sprintf("http://localhost:%d/", ecs_agent_port))
+	config.Datadog.SetDefault("ecs_agent_url", fmt.Sprintf("http://localhost:%d/", ecsAgentPort))
 
 	util, err := GetUtil()
 	assert.Nil(err)

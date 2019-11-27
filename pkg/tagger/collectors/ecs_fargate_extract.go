@@ -84,7 +84,7 @@ func (c *ECSFargateCollector) parseMetadata(meta metadata.TaskMetadata, parseAll
 			low, orch, high := tags.Compute()
 			info := &TagInfo{
 				Source:               ecsFargateCollectorName,
-				Entity:               containers.BuildTaggerEntityName(string(ctr.DockerID)),
+				Entity:               containers.BuildTaggerEntityName(ctr.DockerID),
 				HighCardTags:         high,
 				OrchestratorCardTags: orch,
 				LowCardTags:          low,

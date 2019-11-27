@@ -130,7 +130,7 @@ func (sc ServiceChecks) SplitPayload(times int) ([]marshaler.Marshaler, error) {
 		} else {
 			end = len(sc)
 		}
-		newSC := ServiceChecks(sc[n:end])
+		newSC := sc[n:end]
 		splitPayloads[i] = newSC
 		n += batchSize
 	}

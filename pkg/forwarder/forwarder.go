@@ -62,7 +62,7 @@ const (
 	v1SeriesEndpoint       = "/api/v1/series"
 	v1CheckRunsEndpoint    = "/api/v1/check_run"
 	v1IntakeEndpoint       = "/intake/"
-	v1SketchSeriesEndpoint = "/api/v1/sketches"
+	v1SketchSeriesEndpoint = "/api/v1/sketches" //nolint unused for now
 	v1ValidateEndpoint     = "/api/v1/validate"
 
 	seriesEndpoint        = "/api/v2/series"

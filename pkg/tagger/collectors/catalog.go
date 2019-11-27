@@ -3,6 +3,8 @@
 // This product includes software developed at Datadog (https://www.datadoghq.com/).
 // Copyright 2016-2019 Datadog, Inc.
 
+// +build kubelet docker
+
 package collectors
 
 // CollectorFactory is functions that return a Collector

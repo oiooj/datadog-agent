@@ -14,7 +14,7 @@ from invoke import task
 from invoke.exceptions import Exit
 
 from .utils import get_build_flags, get_version
-from .go import fmt, lint, vet, misspell, ineffassign, lint_licenses
+from .go import fmt, lint, vet, misspell, ineffassign, lint_licenses, golangci_lint
 from .build_tags import get_default_build_tags, get_build_tags
 from .agent import integration_tests as agent_integration_tests
 from .dogstatsd import integration_tests as dsd_integration_tests
@@ -71,17 +71,23 @@ def test(ctx, targets=None, coverage=False, build_include=None, build_exclude=No
 
     # explicitly run these tasks instead of using pre-tasks so we can
     # pass the `target` param (pre-tasks are invoked without parameters)
-    print("--- Linting:")
+    print("--- Linting filenames:")
     lint_filenames(ctx)
+    print("--- Linting licenses:")
+    lint_licenses(ctx)
+
+    # Until all packages whitelisted in .golangci_lint are fixed and remove
+    # from the 'skip-dirs' list we need to keep using the old functions that
+    # lint without build flags (linting some file is better than no linting).
+    print("--- Vetting and linting (legacy):")
+    vet(ctx, targets=tool_targets, rtloader_root=rtloader_root, build_tags=build_tags)
     fmt(ctx, targets=tool_targets, fail_on_fmt=fail_on_fmt)
     lint(ctx, targets=tool_targets)
-    lint_licenses(ctx)
-    print("--- Vetting:")
-    vet(ctx, targets=tool_targets, rtloader_root=rtloader_root, build_tags=build_tags)
-    print("--- Misspelling:")
     misspell(ctx, targets=tool_targets)
-    print("--- ineffassigning:")
     ineffassign(ctx, targets=tool_targets)
+
+    print("--- golangci_lint:")
+    golangci_lint(ctx, targets=tool_targets, rtloader_root=rtloader_root, build_tags=build_tags)
 
     with open(PROFILE_COV, "w") as f_cov:
         f_cov.write("mode: count")
