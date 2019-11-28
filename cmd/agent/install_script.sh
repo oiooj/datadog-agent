@@ -158,7 +158,13 @@ if [ $OS = "RedHat" ]; then
         ARCHI="x86_64"
     fi
 
-    $sudo_cmd sh -c "echo -e '[datadog]\nname = Datadog, Inc.\nbaseurl = https://yum.${repo_url}/${dd_agent_dist_channel}/${dd_agent_major_version}/${ARCHI}/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=0\npriority=1\ngpgkey=https://yum.${repo_url}/DATADOG_RPM_KEY.public\n       https://yum.${repo_url}/DATADOG_RPM_KEY_E09422B3.public' > /etc/yum.repos.d/datadog.repo"
+    if [ $dd_agent_major_version -eq 7 ]; then
+      gpgkeys="https://yum.${repo_url}/DATADOG_RPM_KEY_E09422B3.public"
+    else
+      gpgkeys="https://yum.${repo_url}/DATADOG_RPM_KEY.public\n       https://yum.${repo_url}/DATADOG_RPM_KEY_E09422B3.public"
+    fi
+
+    $sudo_cmd sh -c "echo -e '[datadog]\nname = Datadog, Inc.\nbaseurl = https://yum.${repo_url}/${dd_agent_dist_channel}/${dd_agent_major_version}/${ARCHI}/\nenabled=1\ngpgcheck=1\nrepo_gpgcheck=0\npriority=1\ngpgkey=${gpgkeys}' > /etc/yum.repos.d/datadog.repo"
 
     printf "\033[34m* Installing the Datadog Agent package\n\033[0m\n"
     $sudo_cmd yum -y clean metadata
@@ -208,12 +214,19 @@ elif [ $OS = "SUSE" ]; then
       ARCHI="x86_64"
   fi
 
-  echo -e "\033[34m\n* Installing YUM Repository for Datadog\n\033[0m"
-  $sudo_cmd sh -c "echo -e '[datadog]\nname=datadog\nenabled=1\nbaseurl=https://yum.${repo_url}/suse/${dd_agent_dist_channel}/${dd_agent_major_version}/${ARCHI}\ntype=rpm-md\ngpgcheck=1\nrepo_gpgcheck=0\ngpgkey=https://yum.${repo_url}/DATADOG_RPM_KEY.public\n       https://yum.${repo_url}/DATADOG_RPM_KEY_E09422B3.public' > /etc/zypp/repos.d/datadog.repo"
-
   echo -e "\033[34m\n* Importing the Datadog GPG Keys\n\033[0m"
-  $sudo_cmd rpm --import https://yum.${repo_url}/DATADOG_RPM_KEY.public
-  $sudo_cmd rpm --import https://yum.${repo_url}/DATADOG_RPM_KEY_E09422B3.public
+  if [ $dd_agent_major_version -eq 7 ]; then
+    gpgkeys="https://yum.${repo_url}/DATADOG_RPM_KEY_E09422B3.public"
+    $sudo_cmd rpm --import https://yum.${repo_url}/DATADOG_RPM_KEY_E09422B3.public
+  else
+    gpgkeys="https://yum.${repo_url}/DATADOG_RPM_KEY.public\n       https://yum.${repo_url}/DATADOG_RPM_KEY_E09422B3.public"
+    $sudo_cmd rpm --import https://yum.${repo_url}/DATADOG_RPM_KEY.public
+    $sudo_cmd rpm --import https://yum.${repo_url}/DATADOG_RPM_KEY_E09422B3.public
+  fi
+
+  echo -e "\033[34m\n* Installing YUM Repository for Datadog\n\033[0m"
+  $sudo_cmd sh -c "echo -e '[datadog]\nname=datadog\nenabled=1\nbaseurl=https://yum.${repo_url}/suse/${dd_agent_dist_channel}/${dd_agent_major_version}/${ARCHI}\ntype=rpm-md\ngpgcheck=1\nrepo_gpgcheck=0\ngpgkey=${gpgkeys}' > /etc/zypp/repos.d/datadog.repo"
+
 
   echo -e "\033[34m\n* Refreshing repositories\n\033[0m"
   $sudo_cmd zypper --non-interactive --no-gpg-check refresh datadog
