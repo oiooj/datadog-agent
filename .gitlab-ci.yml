@@ -1,8 +1,8 @@
 include: 'https://gitlab-templates.ddbuild.io/slack-notifier/v1/template.yml'
 
 stages:
-  - binary_build
   - package_build
+  - binary_build
   - source_test
   - integration_test
   - internal_deploy
@@ -422,7 +422,6 @@ cluster_agent-build_arm64:
 # check the size of the static dogstatsd binary
 run_dogstatsd_size_test:
   stage: integration_test
-  needs: ["build_dogstatsd_static-deb_x64"]
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-buildimages/deb_x64:$DATADOG_AGENT_BUILDIMAGES
   tags: [ "runner:main", "size:large" ]
   before_script:
@@ -463,7 +462,6 @@ run_dogstatsd_size_test:
 
 .agent_build_common_arm:
   stage: package_build
-  needs: ["run_dep_check_lock"]
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/$PKG_TARGET:$DATADOG_AGENT_ARMBUILDIMAGES
   tags: ["runner:docker-arm", "platform:arm64"]
 
@@ -472,7 +470,6 @@ agent_deb-x64-a6:
   stage: package_build
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-buildimages/deb_x64:$DATADOG_AGENT_BUILDIMAGES
   tags: [ "runner:main", "size:2xlarge" ]
-  needs: ["run_tests_deb-x64-py2", "run_tests_deb-x64-py3"]
   variables:
     AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: /credentials
     CONDA_ENV: ddpy3
@@ -491,7 +488,6 @@ agent_deb-x64-a7:
   stage: package_build
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-buildimages/deb_x64:$DATADOG_AGENT_BUILDIMAGES
   tags: [ "runner:main", "size:2xlarge" ]
-  needs: ["run_tests_deb-x64-py3"]
   variables:
     AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: /credentials
     CONDA_ENV: ddpy3
@@ -541,7 +537,6 @@ puppy_deb-x64:
   stage: package_build
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-buildimages/deb_x64:$DATADOG_AGENT_BUILDIMAGES
   tags: [ "runner:main", "size:2xlarge" ]
-  needs: ["build_puppy_agent-deb_x64"]
   variables:
     AWS_CONTAINER_CREDENTIALS_RELATIVE_URI: /credentials
   before_script:
@@ -722,7 +717,6 @@ agent_suse-x64-a7:
 ##
 .dockerbuild_windows_msi_base:
   stage: package_build
-  needs: ["run_dep_check_lock"]
   tags: ["runner:windows-docker", "windowsversion:1809"]
   # Unavailable on gitlab < 12.3
   # timeout: 2h 00m
@@ -914,7 +908,6 @@ dogstatsd_suse-x64:
 # deploy debian packages to apt staging repo
 deploy_deb_testing-a6:
   stage: testkitchen_deploy
-  needs: ["agent_deb-x64-a6"]
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/deploy:$DATADOG_AGENT_BUILDERS
   before_script:
     - ls $OMNIBUS_PACKAGE_DIR
@@ -942,7 +935,6 @@ deploy_deb_testing-a6:
 
 deploy_deb_testing-a7:
   stage: testkitchen_deploy
-  needs: ["agent_deb-x64-a7"]
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/deploy:$DATADOG_AGENT_BUILDERS
   before_script:
     - ls $OMNIBUS_PACKAGE_DIR
@@ -974,7 +966,6 @@ deploy_rpm_testing-a6:
   <<: *run_when_testkitchen_triggered
   <<: *skip_when_unwanted_on_6
   stage: testkitchen_deploy
-  needs: ["agent_rpm-x64-a6"]
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/deploy:$DATADOG_AGENT_BUILDERS
   before_script:
     - ls $OMNIBUS_PACKAGE_DIR
@@ -994,7 +985,6 @@ deploy_rpm_testing-a7:
   <<: *run_when_testkitchen_triggered
   <<: *skip_when_unwanted_on_7
   stage: testkitchen_deploy
-  needs: ["agent_rpm-x64-a7"]
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/deploy:$DATADOG_AGENT_BUILDERS
   before_script:
     - ls $OMNIBUS_PACKAGE_DIR
@@ -1015,7 +1005,6 @@ deploy_suse_rpm_testing-a6:
   <<: *run_when_testkitchen_triggered
   <<: *skip_when_unwanted_on_6
   stage: testkitchen_deploy
-  needs: ["agent_suse-x64-a6"]
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/deploy:$DATADOG_AGENT_BUILDERS
   before_script:
     - ls $OMNIBUS_PACKAGE_DIR_SUSE
@@ -1035,7 +1024,6 @@ deploy_suse_rpm_testing-a7:
   <<: *run_when_testkitchen_triggered
   <<: *skip_when_unwanted_on_7
   stage: testkitchen_deploy
-  needs: ["agent_suse-x64-a7"]
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/deploy:$DATADOG_AGENT_BUILDERS
   before_script:
     - ls $OMNIBUS_PACKAGE_DIR_SUSE
@@ -1056,7 +1044,6 @@ deploy_windows_testing-a6:
   <<: *run_when_testkitchen_triggered
   <<: *skip_when_unwanted_on_6
   stage: testkitchen_deploy
-  needs: ["dockerbuild_windows_msi_x86-a6", "dockerbuild_windows_msi_x64-a6"]
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/deploy:$DATADOG_AGENT_BUILDERS
   before_script:
     - ls $OMNIBUS_PACKAGE_DIR
@@ -1068,7 +1055,6 @@ deploy_windows_testing-a7:
   <<: *run_when_testkitchen_triggered
   <<: *skip_when_unwanted_on_7
   stage: testkitchen_deploy
-  needs: ["dockerbuild_windows_msi_x86-a7", "dockerbuild_windows_msi_x64-a7"]
   image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-builders/deploy:$DATADOG_AGENT_BUILDERS
   before_script:
     - ls $OMNIBUS_PACKAGE_DIR
@@ -1134,7 +1120,6 @@ deploy_windows_testing-a7:
 .kitchen_windows_a6_common: &kitchen_windows_a6_common
   <<: *kitchen_common
   <<: *kitchen_a6_common
-  needs: ["deploy_windows_testing-a6"]
   before_script:
     - rsync -azr --delete ./ $SRC_PATH
     - export WINDOWS_TESTING_S3_BUCKET=$WINDOWS_TESTING_S3_BUCKET_A6
@@ -1149,7 +1134,6 @@ deploy_windows_testing-a7:
 .kitchen_windows_a7_common: &kitchen_windows_a7_common
   <<: *kitchen_common
   <<: *kitchen_a7_common
-  needs: ["deploy_windows_testing-a7"]
   before_script:
     - rsync -azr --delete ./ $SRC_PATH
     - export WINDOWS_TESTING_S3_BUCKET=$WINDOWS_TESTING_S3_BUCKET_A7
@@ -1163,7 +1147,6 @@ deploy_windows_testing-a7:
 
 .kitchen_centos_common: &kitchen_centos_common
   <<: *kitchen_common
-  needs: ["deploy_rpm_testing-a6", "deploy_rpm_testing-a7"]
   before_script:
     - rsync -azr --delete ./ $SRC_PATH
     - export TEST_PLATFORMS="centos-69,OpenLogic:CentOS:6.9:6.9.20180530"
@@ -1174,7 +1157,6 @@ deploy_windows_testing-a7:
 
 .kitchen_ubuntu_common: &kitchen_ubuntu_common
   <<: *kitchen_common
-  needs: ["deploy_deb_testing-a6", "deploy_deb_testing-a7"]
   before_script:
     - rsync -azr --delete ./ $SRC_PATH
     - export TEST_PLATFORMS="ubuntu-14-04,Canonical:UbuntuServer:14.04.5-LTS:14.04.201905140"
@@ -1185,7 +1167,6 @@ deploy_windows_testing-a7:
 
 .kitchen_suse_common: &kitchen_suse_common
   <<: *kitchen_common
-  needs: ["deploy_suse_rpm_testing-a6", "deploy_suse_rpm_testing-a7"]
   before_script:
     - rsync -azr --delete ./ $SRC_PATH
     - export TEST_PLATFORMS="sles-12,SUSE:SLES:12-SP4:2019.06.17"
@@ -1195,7 +1176,6 @@ deploy_windows_testing-a7:
 
 .kitchen_debian_common: &kitchen_debian_common
   <<: *kitchen_common
-  needs: ["deploy_deb_testing-a6", "deploy_deb_testing-a7"]
   before_script:
     - rsync -azr --delete ./ $SRC_PATH
     - export TEST_PLATFORMS="debian-8,credativ:Debian:8:8.20190313.0"
@@ -1210,7 +1190,6 @@ kitchen_windows_installer-a6:
   <<: *skip_when_unwanted_on_6
   <<: *kitchen_windows_installer_common
   <<: *kitchen_a6_common
-  needs: ["deploy_windows_testing-a6"]
   before_script:
     - export WINDOWS_TESTING_S3_BUCKET=$WINDOWS_TESTING_S3_BUCKET_A6
   retry: 0
@@ -1220,7 +1199,6 @@ kitchen_windows_installer-a7:
   <<: *skip_when_unwanted_on_7
   <<: *kitchen_windows_installer_common
   <<: *kitchen_a7_common
-  needs: ["deploy_windows_testing-a7"]
   before_script:
     - export WINDOWS_TESTING_S3_BUCKET=$WINDOWS_TESTING_S3_BUCKET_A7
   retry: 0
@@ -1762,7 +1740,6 @@ testkitchen_cleanup_azure-a7:
 build_agent6:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_amd64
-  needs: ["agent_deb-x64-a6"]
   <<: *skip_when_unwanted_on_6
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1774,7 +1751,6 @@ build_agent6:
 build_agent6_arm64:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_arm64
-  needs: ["agent_deb-arm-a6"]
   <<: *skip_when_unwanted_on_6
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1787,7 +1763,6 @@ build_agent6_arm64:
 build_agent6_jmx:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_amd64
-  needs: ["agent_deb-x64-a6"]
   <<: *skip_when_unwanted_on_6
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1801,7 +1776,6 @@ build_agent6_jmx:
 build_agent6_jmx_arm64:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_arm64
-  needs: ["agent_deb-arm-a6"]
   <<: *skip_when_unwanted_on_6
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1815,7 +1789,6 @@ build_agent6_jmx_arm64:
 build_agent6_py3:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_amd64
-  needs: ["agent_deb-x64-a6"]
   <<: *skip_when_unwanted_on_6
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1827,7 +1800,6 @@ build_agent6_py3:
 build_agent6_py3_arm64:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_arm64
-  needs: ["agent_deb-arm-a6"]
   <<: *skip_when_unwanted_on_6
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1840,7 +1812,6 @@ build_agent6_py3_arm64:
 build_agent6_py3_jmx:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_amd64
-  needs: ["agent_deb-x64-a6"]
   <<: *skip_when_unwanted_on_6
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1853,7 +1824,6 @@ build_agent6_py3_jmx:
 build_agent6_py3_jmx_arm64:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_arm64
-  needs: ["agent_deb-arm-a6"]
   <<: *skip_when_unwanted_on_6
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1868,7 +1838,6 @@ build_agent6_py3_jmx_arm64:
 build_agent6_py2py3_jmx:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_amd64
-  needs: ["agent_deb-x64-a6"]
   <<: *skip_when_unwanted_on_6
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1881,7 +1850,6 @@ build_agent6_py2py3_jmx:
 build_agent7:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_amd64
-  needs: ["agent_deb-x64-a7"]
   <<: *skip_when_unwanted_on_7
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1893,7 +1861,6 @@ build_agent7:
 build_agent7_arm64:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_arm64
-  needs: ["agent_deb-arm-a7"]
   <<: *skip_when_unwanted_on_7
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1906,7 +1873,6 @@ build_agent7_arm64:
 build_agent7_jmx:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_amd64
-  needs: ["agent_deb-x64-a7"]
   <<: *skip_when_unwanted_on_7
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1918,7 +1884,6 @@ build_agent7_jmx:
 build_agent7_jmx_arm64:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_arm64
-  needs: ["agent_deb-arm-a7"]
   <<: *skip_when_unwanted_on_7
   variables:
     IMAGE: &agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/agent
@@ -1931,7 +1896,6 @@ build_agent7_jmx_arm64:
 build_cluster_agent_amd64:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_amd64
-  needs: ["cluster_agent-build_amd64"]
   variables:
     IMAGE: &cluster-agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/cluster-agent
     BUILD_CONTEXT: Dockerfiles/cluster-agent
@@ -1939,7 +1903,6 @@ build_cluster_agent_amd64:
 build_cluster_agent_arm64:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_arm64
-  needs: ["cluster_agent-build_arm64"]
   variables:
     IMAGE: &cluster-agent_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/cluster-agent
     BUILD_CONTEXT: Dockerfiles/cluster-agent
@@ -1948,7 +1911,6 @@ build_cluster_agent_arm64:
 build_dogstatsd_amd64:
   <<: *docker_build_job_definition
   extends: .docker_build_job_definition_amd64
-  needs: ["build_dogstatsd_static-deb_x64"]
   variables:
     IMAGE: &dogstatsd_ecr 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent/dogstatsd
     BUILD_CONTEXT: Dockerfiles/dogstatsd/alpine
@@ -2037,7 +1999,6 @@ twistlock_scan-7:
 
 dev_branch_docker_hub:
   <<: *docker_tag_job_definition
-  needs:
     - build_agent6
     - build_agent6_jmx
     - build_agent6_py3
@@ -2063,7 +2024,6 @@ dev_branch_docker_hub:
 
 dev_branch_multiarch_docker_hub:
   <<: *docker_tag_job_definition
-  needs:
     - build_agent6
     - build_agent6_arm64
     - build_agent6_jmx
@@ -2104,7 +2064,6 @@ dev_branch_multiarch_docker_hub:
 
 dev_master_docker_hub:
   <<: *docker_tag_job_definition
-  needs:
     - build_agent6
     - build_agent6_jmx
     - build_agent6_py3
@@ -2128,7 +2087,6 @@ dev_master_docker_hub:
 
 dca_dev_branch_docker_hub:
   <<: *docker_tag_job_definition
-  needs: ["build_cluster_agent_amd64"]
   when: manual
   except:
     - master
@@ -2139,7 +2097,6 @@ dca_dev_branch_docker_hub:
 
 dca_dev_branch_multiarch_docker_hub:
   <<: *docker_tag_job_definition
-  needs: ["build_cluster_agent_amd64", "build_cluster_agent_arm64"]
   when: manual
   except:
     - master
@@ -2151,7 +2108,6 @@ dca_dev_branch_multiarch_docker_hub:
 
 dca_dev_master_docker_hub:
   <<: *docker_tag_job_definition
-  needs: ["build_cluster_agent_amd64"]
   only:
     - master
   variables:
@@ -2163,7 +2119,6 @@ dca_dev_master_docker_hub:
 dev_nightly_docker_hub:
   <<: *docker_tag_job_definition
   <<: *run_when_triggered_on_nightly
-  needs:
     - build_agent6
     - build_agent6_jmx
     - build_agent6_py3
