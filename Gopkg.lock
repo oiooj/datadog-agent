@@ -169,19 +169,22 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:796cde2795f86013d883ddb4150ec6495528b94c17c77af4b878f936fdcd4dfb"
+  name = "github.com/arbll/ristretto"
+  packages = [
+    ".",
+    "z",
+  ]
+  pruneopts = ""
+  revision = "3eb40f2bac6baf7ee162bd0c4ffc30d1a25315b3"
+
+[[projects]]
+  branch = "master"
   digest = "1:a6a3ce6ff165f9a640e57773c90eb594d68974edc877500649707daddae7fd39"
   name = "github.com/armon/go-metrics"
   packages = ["."]
   pruneopts = ""
   revision = "ec5e00d3c878b2a97bbe0884ef45ffd1b4f669f5"
-
-[[projects]]
-  branch = "master"
-  digest = "1:86f77feb5c10f332513c276fe84cf4c63d477eb6c5130d3d8459b6b1e51bc93a"
-  name = "github.com/arbll/ristretto"
-  packages = ["."]
-  pruneopts = ""
-  revision = "b942c5956a4d4dbea68a221bac91274eb3547ccb"
 
 [[projects]]
   digest = "1:63776251fbaa60062742412a9d2fa1e4b7cd24bcf5527fa9656b314ea8d60913"
@@ -2023,7 +2026,7 @@
   revision = "b3a7cee44a305be0a69e1b9ac03018307287e1b0"
 
 [[projects]]
-  digest = "0:"
+  digest = "1:f27698f7ae7864893ebcfb843e44d821263ac1dcf0ba1d5c2353f9d319a2f28d"
   name = "k8s.io/kubernetes"
   packages = [
     "pkg/kubelet/remote/fake",
