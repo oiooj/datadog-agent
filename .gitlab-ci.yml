@@ -1,6 +1,7 @@
 include: 'https://gitlab-templates.ddbuild.io/slack-notifier/v1/template.yml'
 
 stages:
+  - fail
   - source_test
   - binary_build
   - integration_test
@@ -156,6 +157,14 @@ before_script:
   except:
     variables:
       - $RELEASE_VERSION_7 == ""
+
+force-fail:
+  stage: fail
+  image: 486234852809.dkr.ecr.us-east-1.amazonaws.com/ci/datadog-agent-buildimages/deb_x64:$DATADOG_AGENT_BUILDIMAGES
+  tags: [ "runner:main", "size:2xlarge" ]
+  before_script: [ "# noop" ]
+  script:
+    - exit 1
 
 #
 # source_test
@@ -2723,9 +2732,9 @@ pupernetes-tags-7:
 notify-on-failure:
   extends: .slack-notifier.on-failure
   before_script: ["# noop"]
-  only:
-    - master
-    - triggers
+  #only:
+  #  - master
+  #  - triggers
   script:
     - BUILD_URL="$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID"
     - COMMIT_URL="$CI_PROJECT_URL/commit/$CI_COMMIT_SHA"
